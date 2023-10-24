@@ -26,9 +26,11 @@ engine = create_engine(db_url)
 # Load user data from the database
 table_name = 'legacy_users'  # Replace with your actual table name
 user_data = pd.read_sql_table(table_name, engine)
+user_data.to_csv('user_data', index=False)
 
 # Clean the user data
 cleaned_user_data = data_cleaner.clean_user_data(user_data)
+print(cleaned_user_data)
+
 
 # You can now use the 'cleaned_user_data' for further analysis or storage.
-print(cleaned_user_data)

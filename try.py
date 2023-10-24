@@ -2,24 +2,22 @@ import yaml
 import sqlalchemy
 import pandas as pd
 from sqlalchemy import create_engine
-import data_cleaning
-
 
 class DatabaseConnector:
     def __init__(self, engine):
         self.engine = engine
 
-    
+    @staticmethod
     def read_db_creds(file):
         try:
             with open('db_creds.yml', mode='r') as creds_file:
                 creds = yaml.safe_load(creds_file)
                 return creds
         except FileNotFoundError:
-            print(f"File '{file}' not found")
-            return None
+            print(f"File '{'db_creds.yml'}' not found")
+            return None 
 
-    
+    @staticmethod
     def init_db_engine(connector):
         try:
             db_url = f"postgresql://{connector['RDS_USER']}:{connector['RDS_PASSWORD']}@{connector['RDS_HOST']}:{connector['RDS_PORT']}/{connector['RDS_DATABASE']}"
@@ -35,24 +33,4 @@ class DatabaseConnector:
             print(f"Data uploaded to table '{table_name}' successfully.")
         except Exception as e:
             print(f"Error uploading data to table '{table_name}': {e}")
-
-# Load database credentials from the 'db_creds.yml' file
-connector = DatabaseConnector.read_db_creds('db_creds.yml')
-
-if connector:
-    # Initialize the database engine
-    engine = DatabaseConnector.init_db_engine(connector)
-
-    if engine:
-        # Create an instance of the DatabaseConnector class with the engine
-        db_connector = DatabaseConnector(engine)
-
-        # Load your data into a Pandas DataFrame (replace this with your actual data)
-        user_data = pd.read_csv('user_data.csv')  # Replace with your data source
-
-        # Specify the table name where you want to upload the data
-        table_name = 'dim_users'
-
-        # Upload the data to the specified table
-        db_connector.upload_to_db(user_data, table_name)
 
