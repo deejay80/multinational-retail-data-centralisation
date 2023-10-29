@@ -1,25 +1,32 @@
 import yaml
 import sqlalchemy
 import pandas as pd
-from sqlalchemy import create_engine
-import data_cleaning
-
 
 class DatabaseConnector:
     def __init__(self, engine):
         self.engine = engine
 
-    
+    @staticmethod
     def read_db_creds(file):
         try:
-            with open('db_creds.yml', mode='r') as creds_file:
+            with open(file, mode='r') as creds_file:
                 creds = yaml.safe_load(creds_file)
                 return creds
         except FileNotFoundError:
             print(f"File '{file}' not found")
             return None
 
-    
+    @staticmethod
+    def read_db_upload_creds(file):
+        try:
+            with open(file, mode='r') as upcreds_file:
+                upcreds = yaml.safe_load(upcreds_file)
+                return upcreds
+        except FileNotFoundError:
+            print(f"File '{file}' not found")
+            return None
+
+    @staticmethod
     def init_db_engine(connector):
         try:
             db_url = f"postgresql://{connector['RDS_USER']}:{connector['RDS_PASSWORD']}@{connector['RDS_HOST']}:{connector['RDS_PORT']}/{connector['RDS_DATABASE']}"
@@ -50,9 +57,19 @@ if connector:
         # Load your data into a Pandas DataFrame (replace this with your actual data)
         user_data = pd.read_csv('user_data.csv')  # Replace with your data source
 
-        # Specify the table name where you want to upload the data
-        table_name = 'dim_users'
+        # Load database credentials for the upload destination from 'db_upload_creds.yml' file
+        connector2 = DatabaseConnector.read_db_upload_creds('db_upload_creds.yml')
 
-        # Upload the data to the specified table
-        db_connector.upload_to_db(user_data, table_name)
+        if connector2:
+            # Initialize the second database engine for the upload destination
+            engine2 = DatabaseConnector.init_db_engine(connector2)
 
+            if engine2:
+                # Create a second instance of the DatabaseConnector class with the second engine
+                db_connector2 = DatabaseConnector(engine2)
+
+                # Specify the table name where you want to upload the data
+                table_name = 'dim_users'
+
+                # Upload the data to the specified table in the second database
+                db_connector2.upload_to_db(user_data, table_name)
