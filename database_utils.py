@@ -1,6 +1,7 @@
 import yaml
 import sqlalchemy
 import pandas as pd
+import data_extraction
 
 class DatabaseConnector:
     def __init__(self, creds_file):
