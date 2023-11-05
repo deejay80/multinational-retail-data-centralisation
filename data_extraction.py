@@ -2,6 +2,7 @@ import sqlalchemy
 from sqlalchemy import inspect
 from sqlalchemy import create_engine
 import pandas as pd
+import tabula
 
 class DataExtractor:
     def __init__(self, engine):
@@ -31,6 +32,17 @@ class DataExtractor:
         except Exception as e:
             print(f"Error reading from {table_name}: {e}")
             return None
+    def retrieve_pdf_data(self, link):
+        try:
+            dfs = tabula.read_pdf("https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf", stream=True)
+            print(len(dfs))
+            print(dfs[0])  # Access the first DataFrame extracted from the PDF
+            return dfs  # Return the extracted DataFrames
+        except Exception as e:
+            print(f"Error retrieving data from PDF: {e}")
+        return None
+ 
+        
 
 # Define your database connection URL, e.g., for PostgreSQL
 db_url = "postgresql://aicore_admin:AiCore2022@data-handling-project-readonly.cq2e8zno855e.eu-west-1.rds.amazonaws.com:5432/postgres"
@@ -69,3 +81,20 @@ if user_data_table:
         print("Data extraction from the user data table failed.")
 else:
     print("User data table not found in the database.")
+
+# Create a DataExtractor instance with the engine
+data_extractor = DataExtractor(engine)
+
+# Define the PDF link
+pdf_link = "https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf"
+
+# Retrieve data from the PDF
+extracted_data = data_extractor.retrieve_pdf_data(pdf_link)
+# After extracting the data from the PDF:
+if extracted_data is not None:
+    print("Extracted Data:")
+    for df in extracted_data:
+        print("DataFrame:")
+        print(df.head())  # Display the first few rows of each DataFrame extracted from the PDF
+else:
+    print("Extraction from the PDF failed.")
