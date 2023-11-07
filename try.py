@@ -1,6 +1,7 @@
 import yaml
 import sqlalchemy
 import pandas as pd
+from data_cleaning import cleaned_user_data
 
 class DatabaseConnector:
     def __init__(self, creds_file):
@@ -35,17 +36,9 @@ class DatabaseConnector:
             except Exception as e:
                 print(f"Error uploading data to table '{table_name}': {e}")
 
-# Usage:
-file1 = 'db_creds.yml'  # Update with the correct file name
-file2 = 'db_upload_creds.yml'  # Update with the correct file name
+file_path_user = 'db_user_creds.yml'
+file_path_card = 'db_card_creds.yml'
+cleaned_user_data_file = 'cleaned_user_data.csv'
+cleaned_card_data_file = 'cleaned_card_data.csv'
 
-connector = DatabaseConnector(file1)  # Use the first set of credentials
-connector2 = DatabaseConnector(file2)  # Use the second set of credentials
 
-# Assuming 'user_data.csv' exists and has the appropriate data structure
-
-user_data = pd.read_csv('user_data.csv')
-table_name = 'dim_users'
-
-connector.upload_to_db(user_data, table_name)  # Upload data using the first set of credentials
-connector2.upload_to_db(user_data, table_name)  # Upload data using the second set of credentials

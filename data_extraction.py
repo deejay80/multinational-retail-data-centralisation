@@ -3,6 +3,7 @@ from sqlalchemy import inspect
 from sqlalchemy import create_engine
 import pandas as pd
 import tabula
+import requests
 
 class DataExtractor:
     def __init__(self, engine):
@@ -41,7 +42,35 @@ class DataExtractor:
         except Exception as e:
             print(f"Error retrieving data from PDF: {e}")
         return None
- 
+    def list_number_of_stores(self, store_num_endpoint, header):
+        try:
+            response = requests.get("https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores", headers = {"x-api-key":"yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX"})
+            if response.status_code == 200:
+                return response.json()
+            else:
+                print(f"Failed to retrieve store number:{response.status_code}")
+                return None
+        except requests.RequestException as e:
+                print(f"error during API request:{e}")
+                return None
+            
+    def retrieve_stores_data(self, retrieve_store_endpoint):
+        try:
+            response = requests.get("https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/{store_number}", headers = {"x-api-key":"yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX"})
+            if response.status_code == 200:
+                stores_data = response.json()  # Extract all stores data
+                stores_df = pd.DataFrame(stores_data)  # Convert to DataFrame
+                return stores_df
+            else:
+                print(f"Failed to retrieve stores data. Status code: {response.status_code}")
+                print(f"Response content: {response.content.decode('utf-8')}")
+                return None
+        except requests.RequestException as e:
+            print(f"Error during API request: {e}")
+            return None
+
+            
+        
         
 
 # Define your database connection URL, e.g., for PostgreSQL
@@ -82,19 +111,36 @@ if user_data_table:
 else:
     print("User data table not found in the database.")
 
-# Create a DataExtractor instance with the engine
+
+pdf_path = 'https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf'  
+tables = tabula.read_pdf(pdf_path, pages='all', multiple_tables=True)
+
+# `tables` will contain a list of DataFrames (one for each table found in the PDF)
+# Access and manipulate the required DataFrame
+
+# For example, if the table you want is in the first position (index 0) in the list:
+card_data = tables[0]
+
+# Display the extracted data
+print(card_data)
+
+#data_extractor = DataExtractor(engine)
+#number_stores_endpoint = "https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores"
+#header_details = {'x-api-key': 'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'}
+
+# Extract the number of stores using the API
+#number_of_stores = data_extractor.list_number_of_stores(number_stores_endpoint, header_details)
+#print(f"Number of stores: {number_of_stores}")
+
+# Use the DataExtractor class to retrieve store data from the API
 data_extractor = DataExtractor(engine)
 
-# Define the PDF link
-pdf_link = "https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf"
+# API endpoint and header details
+retrieve_store_endpoint = "https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details"
+header_details = {'x-api-key': 'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'}
 
-# Retrieve data from the PDF
-extracted_data = data_extractor.retrieve_pdf_data(pdf_link)
-# After extracting the data from the PDF:
-if extracted_data is not None:
-    print("Extracted Data:")
-    for df in extracted_data:
-        print("DataFrame:")
-        print(df.head())  # Display the first few rows of each DataFrame extracted from the PDF
-else:
-    print("Extraction from the PDF failed.")
+# Retrieve all stores from the API and save in a DataFrame
+stores_data = data_extractor.retrieve_stores_data(retrieve_store_endpoint)
+
+# Print or use the obtained stores DataFrame as needed
+print(stores_data)
