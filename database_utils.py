@@ -1,7 +1,6 @@
 import yaml
 import sqlalchemy
 import pandas as pd
-import data_extraction
 
 class DatabaseConnector:
     def __init__(self, creds_file):
@@ -43,8 +42,16 @@ file2 = 'db_upload_creds.yml'  # Update with the correct file name
 connector = DatabaseConnector(file1)  # Use the first set of credentials
 connector2 = DatabaseConnector(file2)  # Use the second set of credentials
 
+
 # Assuming 'user_data.csv' exists and has the appropriate data structure
 
-user_data = pd.read_csv('user_data.csv')
+#cleaned_user_data = pd.read_csv('cleaned_user_data.csv')
+cleaned_card_data = pd.read_csv('cleaned_card_data.csv')
+
 table_name = 'dim_users'
-connector2.upload_to_db(user_data, table_name)  # Upload data using the second set of credentials
+table_name_card = 'dim_card_details'
+
+#connector2.upload_to_db(cleaned_user_data, table_name)  # Upload data using the second set of credentials
+connector2.upload_to_db(cleaned_card_data,table_name_card)
+
+

@@ -1,5 +1,6 @@
 import pandas as pd
 from sqlalchemy import create_engine
+import tabula
 from data_extraction import DataExtractor
 
 class DataCleaning:
@@ -20,14 +21,13 @@ class DataCleaning:
 
         return user_data
     
-    def clean_card_data(self, card_data):
+    def clean_card_data(self, tables):
         # Remove rows with NULL values
-        cleaned_data = card_data.dropna()
+        cleaned_data = tables.dropna()
 
         # Check for and handle erroneous values or formatting errors
         # For instance, correcting data types, formatting issues, etc.
-        # Example:
-        cleaned_data['Amount'] = cleaned_data['Amount'].apply(lambda x: float(x.replace('$', '')) if isinstance(x, str) else x)
+        
 
         return cleaned_data
 
@@ -51,18 +51,27 @@ cleaned_user_data = data_cleaner.clean_user_data(user_data)
 cleaned_user_data.to_csv('cleaned_user_data',index=False)
 print(cleaned_user_data)
 
-data_extractor = DataExtractor(engine)
-data_cleaner = DataCleaning()
 
-# Retrieve data from the PDF (assuming 'extracted_data' is the extracted DataFrame)
-extracted_card_data = extracted_data  # Assuming the card data is the first DataFrame from the PDF
 
-# Clean the card data
-cleaned_card_data = data_cleaner.clean_card_data(extracted_card_data)
 
-# Upload the cleaned card data to the local database
-db_connector.upload_to_db(cleaned_card_data, 'card_data_table_name')  # Change 'card_data_table_name' to your table name
 
+# Load card data from the PDF file
+pdf_path = 'https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf'
+tables = tabula.read_pdf(pdf_path, pages='all', multiple_tables=True)
+
+# Clean and concatenate card data from all tables into a single DataFrame
+cleaned_card_data = None
+
+for table in tables:
+    cleaned_table = data_cleaner.clean_card_data(table)
+    if cleaned_card_data is None:
+        cleaned_card_data = cleaned_table
+    else:
+        cleaned_card_data = pd.concat([cleaned_card_data, cleaned_table])
+
+# Save cleaned card data to a CSV file
+cleaned_card_data.to_csv('cleaned_card_data.csv', index=False)
+print(cleaned_card_data)
 
 
 
