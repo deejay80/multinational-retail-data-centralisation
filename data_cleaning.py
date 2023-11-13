@@ -2,6 +2,7 @@ import pandas as pd
 from sqlalchemy import create_engine
 import tabula
 from data_extraction import DataExtractor
+import requests
 
 class DataCleaning:
     def __init__(self):
@@ -28,8 +29,16 @@ class DataCleaning:
         # Check for and handle erroneous values or formatting errors
         # For instance, correcting data types, formatting issues, etc.
         
-
         return cleaned_data
+    
+    def clean_store_data(self, stores_data):
+
+        # Perform data cleaning steps such as removing NaN values, renaming columns, etc.
+        # For example, assuming column 'name' has NaN values and you want to drop those rows:
+        cleaned_stores_data = stores_data.dropna(subset=['name'])
+        df_cleaned_data = pd.DataFrame(cleaned_stores_data)  # Convert the API response data to a DataFrame
+        
+        return df_cleaned_data
 
 
 # Create an instance of the DataCleaning class
@@ -73,6 +82,25 @@ for table in tables:
 cleaned_card_data.to_csv('cleaned_card_data.csv', index=False)
 print(cleaned_card_data)
 
+# Assuming 'data_extractor' is an instance of the DataExtractor class
+# Retrieving the data from the API
+
+retrieve_store_endpoint = "https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/{store_number}"
+store_number = 400
+headers = {"x-api-key":"yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX"}
+cleaned_store_data = None
+# Retrieve data from the API
+response = requests.get(retrieve_store_endpoint, headers )
+if response.status_code == 200:
+    stores_data = response.json()
+    stores_data_df = pd.DataFrame(stores_data,index= [0])  # Convert to DataFrame
+    cleaned_store_data = data_cleaner.clean_store_data(stores_data_df)
+
+    # Display the cleaned data
+    print(cleaned_store_data)
+else:
+    print(f"Failed to retrieve store data. Status code: {response.status_code}")
+    print(f"Response content: {response.content.decode('utf-8')}")
 
 
 
