@@ -1,12 +1,15 @@
 import pandas as pd
 from sqlalchemy import create_engine
-import tabula
 from data_extraction import DataExtractor
+
+import tabula
 import requests
+
 
 class DataCleaning:
     def __init__(self):
         pass
+        
 
     def clean_user_data(self, user_data):
         # Handle NULL values (e.g., replace them with appropriate values or drop rows)
@@ -24,25 +27,27 @@ class DataCleaning:
     
     def clean_card_data(self, tables):
         # Remove rows with NULL values
-        cleaned_data = tables.dropna()
+        cleaned_card_data = tables.dropna()
 
         # Check for and handle erroneous values or formatting errors
         # For instance, correcting data types, formatting issues, etc.
         
-        return cleaned_data
+        return cleaned_card_data
     
     def clean_store_data(self, stores_data):
+        cleaned_data =[]
+        for store_data in stores_data:
+         cleaned_store_data = store_data.drop(['lat'], axis = 1)
 
-        # Perform data cleaning steps such as removing NaN values, renaming columns, etc.
-        # For example, assuming column 'name' has NaN values and you want to drop those rows:
-        cleaned_stores_data = stores_data.dropna(subset=['name'])
-        df_cleaned_data = pd.DataFrame(cleaned_stores_data)  # Convert the API response data to a DataFrame
-        
-        return df_cleaned_data
+         null_count = cleaned_store_data.isnull().sum()
+         cleaned_data.append({'cleaned store data':cleaned_store_data,'Null Counts':null_count})    
+         return cleaned_store_data
 
 
 # Create an instance of the DataCleaning class
 data_cleaner = DataCleaning()
+
+
 
 # Define your database connection URL
 db_url = "postgresql://aicore_admin:AiCore2022@data-handling-project-readonly.cq2e8zno855e.eu-west-1.rds.amazonaws.com:5432/postgres"
@@ -85,22 +90,27 @@ print(cleaned_card_data)
 # Assuming 'data_extractor' is an instance of the DataExtractor class
 # Retrieving the data from the API
 
-retrieve_store_endpoint = "https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/{store_number}"
-store_number = 400
+
+
+retrieve_store_endpoint = "https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/"
 headers = {"x-api-key":"yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX"}
 cleaned_store_data = None
 # Retrieve data from the API
 response = requests.get(retrieve_store_endpoint, headers )
 if response.status_code == 200:
     stores_data = response.json()
-    stores_data_df = pd.DataFrame(stores_data,index= [0])  # Convert to DataFrame
-    cleaned_store_data = data_cleaner.clean_store_data(stores_data_df)
+    data_cleaner = DataCleaning(stores_data)
+    cleaned_store_data = data_cleaner.clean_store_data(stores_data)
 
+    cleaned_store_data.to_csv('cleaned_store_data.csv',index = False)
     # Display the cleaned data
     print(cleaned_store_data)
 else:
     print(f"Failed to retrieve store data. Status code: {response.status_code}")
     print(f"Response content: {response.content.decode('utf-8')}")
+    
 
+#cleaned_store_data = data_cleaner.clean_store_data(stores_data)
+#print(cleaned_store_data)
 
 

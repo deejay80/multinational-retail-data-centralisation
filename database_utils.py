@@ -34,6 +34,15 @@ class DatabaseConnector:
                 print(f"Data uploaded to table '{table_name}' successfully.")
             except Exception as e:
                 print(f"Error uploading data to table '{table_name}': {e}")
+                  
+    def upload_to_db(self, df, store_details):
+        if self.engine:
+            try:
+                df.to_sql(store_details, self.engine, if_exists='replace', index=False)
+                print(f"Data uploaded to table '{stores_details}' successfully.")
+            except Exception as e:
+                print(f"Error uploading data to table '{stores_details}': {e}")
+
 
 # Usage:
 file1 = 'db_creds.yml'  # Update with the correct file name
@@ -47,11 +56,11 @@ connector2 = DatabaseConnector(file2)  # Use the second set of credentials
 
 #cleaned_user_data = pd.read_csv('cleaned_user_data.csv')
 cleaned_card_data = pd.read_csv('cleaned_card_data.csv')
-
+cleaned_store_data = pd.read_csv('cleaned_store_data.csv')
 table_name = 'dim_users'
 table_name_card = 'dim_card_details'
-
+stores_details = 'dim_store_details'
 #connector2.upload_to_db(cleaned_user_data, table_name)  # Upload data using the second set of credentials
 connector2.upload_to_db(cleaned_card_data,table_name_card)
-
+connector2.upload_to_db(cleaned_store_data,stores_details)
 
