@@ -26,6 +26,7 @@ class DatabaseConnector:
             except Exception as e:
                 print(f"Error loading engine: {e}")
                 return None
+            '''
 
     def upload_to_db(self, df, table_name):
         if self.engine:
@@ -34,16 +35,31 @@ class DatabaseConnector:
                 print(f"Data uploaded to table '{table_name}' successfully.")
             except Exception as e:
                 print(f"Error uploading data to table '{table_name}': {e}")
-                  
+           
     def upload_to_db(self, df, store_details):
         if self.engine:
             try:
                 df.to_sql(store_details, self.engine, if_exists='replace', index=False)
-                print(f"Data uploaded to table '{stores_details}' successfully.")
+                print(f"Data uploaded to table '{store_details}' successfully.")
             except Exception as e:
-                print(f"Error uploading data to table '{stores_details}': {e}")
-
-
+                print(f"Error uploading data to table '{store_details}': {e}")
+            '''
+                
+    def upload_to_db(self,df,product_details):
+        if self.engine:
+            try:
+                df.to_sql(product_details,self.engine, if_exists='replace', index=False)
+                print(f"Data uploaded to table'{product_details}' successfully.")
+            except Exception as e:
+                print(f"Error uploading data to table'{product_details}':{e}")
+                
+    def upload_to_db(self,df,orders_details):
+        if self.engine:
+            try:
+                df.to_sql(orders_details,self.engine, if_exists='replace', index=False)
+                print(f"Data uploaded to table'{orders_details}' succesfully.")
+            except Exception as e:
+                print(f"Error uploading data to table'{orders_details}':{e}")
 # Usage:
 file1 = 'db_creds.yml'  # Update with the correct file name
 file2 = 'db_upload_creds.yml'  # Update with the correct file name
@@ -54,13 +70,18 @@ connector2 = DatabaseConnector(file2)  # Use the second set of credentials
 
 # Assuming 'user_data.csv' exists and has the appropriate data structure
 
-#cleaned_user_data = pd.read_csv('cleaned_user_data.csv')
-cleaned_card_data = pd.read_csv('cleaned_card_data.csv')
 cleaned_store_data = pd.read_csv('cleaned_store_data.csv')
+cleaned_product_df = pd.read_csv('cleaned_product_df.csv')
+cleaned_orders_data = pd.read_csv('cleaned_orders_data.csv')
 table_name = 'dim_users'
 table_name_card = 'dim_card_details'
 stores_details = 'dim_store_details'
+product_details = 'dim_products'
+orders_details = 'orders_table'
 #connector2.upload_to_db(cleaned_user_data, table_name)  # Upload data using the second set of credentials
-connector2.upload_to_db(cleaned_card_data,table_name_card)
+#connector2.upload_to_db(cleaned_card_data,table_name_card)
 connector2.upload_to_db(cleaned_store_data,stores_details)
+connector2.upload_to_db(cleaned_product_df,product_details)
+connector2.upload_to_db(cleaned_orders_data,orders_details)
+
 
