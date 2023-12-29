@@ -1,12 +1,17 @@
 import pandas as pd
 import re
+from data_extraction import DataExtractor
+
 class DataCleaning:
-    def __init__(self):
+    
+    def __init__(self,date_data=None) ->None:
+        # self.product_df = product_df
+        # self.orders_data = orders_data
+          self.date_data = date_data
         
-        '''
     def clean_user_data(self, user_data):
         # Handle NULL values (e.g., replace them with appropriate values or drop rows)
-        user_data.dropna(axis='index', inplace=True)  # Replace 'country_code' with the actual column name
+        user_data.dropna(axis='index', inplace=True)  
 
         # Handle date errors (e.g., convert date strings to datetime objects)
         user_data['date_of_birth'] = pd.to_datetime(user_data['date_of_birth'], errors='coerce')
@@ -17,12 +22,9 @@ class DataCleaning:
 
         return user_data
 
-    def clean_card_data(self, tables):
+    def clean_card_data(self, pdf_data):
         # Remove rows with NULL values
-        cleaned_card_data = tables.dropna()
-
-        # Check for and handle erroneous values or formatting errors
-        # For instance, correcting data types, formatting issues, etc.
+        cleaned_card_data = pdf_data.dropna()
 
         return cleaned_card_data
 
@@ -33,12 +35,12 @@ class DataCleaning:
         null_count = cleaned_store_data.isnull().sum()
         cleaned_data.append({'cleaned store data': cleaned_store_data, 'Null Counts': null_count})
         return cleaned_store_data
-        '''
+        
         
     
     def convert_product_weights(self,product_df):
         
-        if 'weight' not in product_df.column:
+        if 'weight' not in product_df.columns:
             print("Warning:Weight column not found in DataFrame")
         
         # Define Function to  convert weights to kg
@@ -68,110 +70,62 @@ class DataCleaning:
     def clean_products_data(self,product_df):
        cleaned_product_df = product_df.drop_duplicates(subset=['category'])
        cleaned_product_df = product_df.dropna(subset=['weight'])
+       cleaned_product_df = product_df.drop(columns=['removed','uuid'])
        
        return cleaned_product_df
     
     def clean_orders_data(self,orders_data):
         # Remove specified columns (first_name, last_name, 1)
-        columns_to_remove = ['first_name', 'last_name', 1]
+        columns_to_remove = ['first_name', 'last_name', '1']
         cleaned_orders_data = orders_data.drop( columns=columns_to_remove, errors='ignore')
 
         # Additional cleaning steps go here
         # You can add specific cleaning logic based on your requirements
 
         return cleaned_orders_data
-    def clean_date_details(self,date_details):
-        cleaned_date_details = date_details.dropna()
-        return cleaned_date_details
+    
+    def clean_date_data(self,date_data):
+        cleaned_date_data = date_data.dropna()
+        cleaned_date_data = date_data.drop(columns='date_uuid')
+        return cleaned_date_data
     
 
 
   
 
 
-'''
-    # Define your database connection URL
-db_url = "postgresql://aicore_admin:AiCore2022@data-handling-project-readonly.cq2e8zno855e.eu-west-1.rds.amazonaws.com:5432/postgres"
-
-# Create an SQLAlchemy engine
-engine = create_engine(db_url)
-
-# Load user data from the database
-table_name = 'legacy_users'  
-user_data = pd.read_sql_table(table_name, engine)
-number_stores_endpoint = "https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores"
-header_details = {'x-api-key': 'yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX'}
-
-number_of_stores = DataExtractor.list_number_of_stores(number_stores_endpoint,header_details)
-
-retrieve_store_endpoint = "https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/{store_number}"
-    
-pdf_path = 'https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf'
-tables = tabula.read_pdf(pdf_path, pages='all', multiple_tables=True)
-stores_data = DataExtractor.retrieve_stores_data(retrieve_store_endpoint, header_details, number_of_stores)
-
-
-stores_data = DataExtractor.retrieve_stores_data.stores_data
-data_cleaner = DataCleaning(stores_data)
-
-fine_data = data_cleaner.clean_store_data(stores_data)
-
-
-# Define your database connection URL
-db_url = "postgresql://aicore_admin:AiCore2022@data-handling-project-readonly.cq2e8zno855e.eu-west-1.rds.amazonaws.com:5432/postgres"
-
-# Create an SQLAlchemy engine
-engine = create_engine(db_url)
-
-# Load user data from the database
-table_name = 'legacy_users'  
-user_data = pd.read_sql_table(table_name, engine)
-user_data.to_csv('user_data', index=False)
-
-# Clean the user data
-cleaned_user_data = data_cleaner.clean_user_data(user_data)
-cleaned_user_data.to_csv('cleaned_user_data',index=False)
-print(cleaned_user_data)
-
-
-
-
-
-# Load card data from the PDF file
-pdf_path = 'https://data-handling-public.s3.eu-west-1.amazonaws.com/card_details.pdf'
-tables = tabula.read_pdf(pdf_path, pages='all', multiple_tables=True)
-
-# Clean and concatenate card data from all tables into a single DataFrame
-cleaned_card_data = None
-
-for table in tables:
-    cleaned_table = data_cleaner.clean_card_data(table)
-    if cleaned_card_data is None:
-        cleaned_card_data = cleaned_table
-    else:
-        cleaned_card_data = pd.concat([cleaned_card_data, cleaned_table])
-
-# Save cleaned card data to a CSV file
-cleaned_card_data.to_csv('cleaned_card_data.csv', index=False)
-print(cleaned_card_data)
-
-# Assuming 'data_extractor' is an instance of the DataExtractor class
-# Retrieving the data from the API
-
+user_data = pd.read_csv('user_data.csv')
+pdf_data_df = pd.read_csv('pdf_data_df')
+stores_data = pd.read_csv('stores_data.csv')
+product_df = pd.read_csv('product_df.csv')
+orders_data = pd.read_csv('orders_data.csv')
+date_data = pd.read_csv('date_data.csv')
 
 data_cleaner = DataCleaning()
+
+cleaned_user_data = data_cleaner.clean_user_data(user_data_df)
+print(cleaned_user_data.head())
+cleaned_user_data.to_csv('cleaned_user_data.csv')
+
+cleaned_card_data = data_cleaner.clean_card_data(pdf_data_df)
+print(cleaned_card_data.head())
+cleaned_card_data.to_csv('cleaned_card_data.csv')
 
 cleaned_store_data = data_cleaner.clean_store_data(stores_data)
+print(cleaned_store_data.head())
+cleaned_store_data.to_csv('cleaned_store_data.csv')
 
-    #cleaned_store_data.to_csv('cleaned_store_data.csv',index = False)
-    # Display the cleaned data
-print(cleaned_store_data)
-'''
-data_cleaner = DataCleaning()
+
 
 cleaned_product_df = data_cleaner.clean_products_data(product_df)
+print(cleaned_product_df.head())
 
-    #cleaned_store_data.to_csv('cleaned_store_data.csv',index = False)
-    # Display the cleaned data
-print(cleaned_product_df)
 
+
+cleaned_orders_data = data_cleaner.clean_orders_data(orders_data)
+print(cleaned_orders_data.head())
+cleaned_orders_data.to_csv('cleaned_orders_data.csv')
+
+cleaned_date_data = data_cleaner.clean_date_data(date_data)
+print(cleaned_date_data.head())
+cleaned_date_data.to_csv('cleaned_date_data.csv')

@@ -28,7 +28,7 @@ class DatabaseConnector:
                 return None
             '''
 
-    def upload_to_db(self, df, table_name):
+    def upload_card_data(self, df, table_name):
         if self.engine:
             try:
                 df.to_sql(table_name, self.engine, if_exists='replace', index=False)
@@ -36,30 +36,39 @@ class DatabaseConnector:
             except Exception as e:
                 print(f"Error uploading data to table '{table_name}': {e}")
            
-    def upload_to_db(self, df, store_details):
+    def upload_store_data(self, df, store_details):
         if self.engine:
             try:
                 df.to_sql(store_details, self.engine, if_exists='replace', index=False)
                 print(f"Data uploaded to table '{store_details}' successfully.")
             except Exception as e:
                 print(f"Error uploading data to table '{store_details}': {e}")
-            '''
+            
                 
-    def upload_to_db(self,df,product_details):
+    def upload_product_data(self,df,product_details):
         if self.engine:
             try:
                 df.to_sql(product_details,self.engine, if_exists='replace', index=False)
                 print(f"Data uploaded to table'{product_details}' successfully.")
             except Exception as e:
                 print(f"Error uploading data to table'{product_details}':{e}")
-                
-    def upload_to_db(self,df,orders_details):
+            '''   
+    def upload_orders_data(self,df,orders_details):
         if self.engine:
             try:
                 df.to_sql(orders_details,self.engine, if_exists='replace', index=False)
                 print(f"Data uploaded to table'{orders_details}' succesfully.")
             except Exception as e:
                 print(f"Error uploading data to table'{orders_details}':{e}")
+    
+    def upload_date_data(self,df,date_details):
+        if self.engine:
+            try:
+                df.to_sql(date_details,self.engine, if_exists='replace', index=False)
+                print(f"Data uploaded to table'{date_details}' succesfully.")
+            except Exception as e:
+                print(f"Error uploading data to table'{date_details}':{e}")
+
 # Usage:
 file1 = 'db_creds.yml'  # Update with the correct file name
 file2 = 'db_upload_creds.yml'  # Update with the correct file name
@@ -69,19 +78,24 @@ connector2 = DatabaseConnector(file2)  # Use the second set of credentials
 
 
 # Assuming 'user_data.csv' exists and has the appropriate data structure
-
+cleaned_user_data = pd.read_csv('cleaned_user_data.csv')
+cleaned_card_data = pd.read_csv('cleaned_card_data.csv')
 cleaned_store_data = pd.read_csv('cleaned_store_data.csv')
 cleaned_product_df = pd.read_csv('cleaned_product_df.csv')
 cleaned_orders_data = pd.read_csv('cleaned_orders_data.csv')
+cleaned_date_data = pd.read_csv('cleaned_date_data.csv')
 table_name = 'dim_users'
 table_name_card = 'dim_card_details'
 stores_details = 'dim_store_details'
 product_details = 'dim_products'
 orders_details = 'orders_table'
-#connector2.upload_to_db(cleaned_user_data, table_name)  # Upload data using the second set of credentials
-#connector2.upload_to_db(cleaned_card_data,table_name_card)
-connector2.upload_to_db(cleaned_store_data,stores_details)
-connector2.upload_to_db(cleaned_product_df,product_details)
-connector2.upload_to_db(cleaned_orders_data,orders_details)
+date_details = 'dim_date_times'
+connector2.upload_user_data(cleaned_user_data, table_name)  
+#connector2.upload_card_data(cleaned_card_data,table_name_card)
+#connector2.upload_store_data(cleaned_store_data,stores_details)
+#connector2.upload_product_data(cleaned_product_df,product_details)
+#connector2.upload_orders_data(cleaned_orders_data,orders_details)
+connector2.upload_date_data(cleaned_date_data,date_details)
+
 
 
