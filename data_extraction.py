@@ -148,11 +148,12 @@ class DataExtractor:
             print(f"Error retrieving JSON data: {e}")
             return None
 
-        
+if __name__ == "__main__":
+       
 
             # Constants
     # API endpoint for retrieving number of stores
-number_stores_endpoint = "https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores"
+ number_stores_endpoint = "https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores"
     # API endpoint for retrieving store details
 retrieve_store_endpoint = "https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details/{store_number}"
     # Headers for API requests
@@ -173,7 +174,7 @@ engine = create_engine(db_url)
 
     # Instantiate DataExtractor
 data_extractor = DataExtractor(engine)
-
+'''
     # List database tables
 tables = data_extractor.list_db_tables()
 print("Database tables:", tables)
@@ -211,7 +212,7 @@ else:
     print("PDF data extraction failed.")
     pdf_data.to_csv('pdf_data.csv')
      # Extract the number of stores using the API
-'''
+
 number_of_stores = data_extractor.list_number_of_stores(number_stores_endpoint, header_details)
 print(f"Number of stores: {number_of_stores}")
 
