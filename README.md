@@ -4,15 +4,15 @@
 
 - [Description](#description)
 - [Tools and Libraries](#tools-and-libraries)
-- [Project Progress](#project-progress)
-- [Installation](#installation)
-- [Usage](#usage)
+- [What I learned](#what-i-learned)
 - [File Structure](#file-structure)
 - [License](#license)
 
 ## Description
 
 This project focuses on centralizing the sales data of our multinational company into a single database, enabling easy access and analysis. The primary goals include creating a unified data source, enhancing data-driven decision-making, and improving overall business intelligence.
+For more information about the project kindly refer to [GitHub Wiki](https://github.com/deejay80/multinational-retail-data-centralisation/wiki)
+
 ## Tools
   ###  Technologies:
   - [PostgreSQl](#postgresql):  Robust relational database management system chosen for the project.
@@ -38,30 +38,6 @@ This project focuses on centralizing the sales data of our multinational company
 
  `yaml`:  A library for working with YAML files.
 
-### Project Progress
-
-#### Week 1: Project Initiation
-
-- Defined project goals and scope.
-- Selected PostgreSQL as the DBMS for its robust features.
-- Established initial database schema with tables for customers, products, and orders.
-
-#### Week 2: ETL Process Implementation
-
-- Identified and extracted sample sales data from CSV files and an API endpoint.
-- Implemented data transformation steps to clean and standardize the extracted data.
-- Completed the initial ETL process, loading data into the PostgreSQL database.
-
-#### Week 3: Database Connection and Access
-
-- Set up a secure connection to the centralized database.
-- Developed a simple data access layer using SQL queries for basic interaction.
-
-#### Week 4: Metrics and Monitoring
-
-- Created SQL queries to retrieve key business metrics, including total revenue and top-selling products.
-- Implemented monitoring tools to track database performance and health.
-- Conducted initial testing and resolved performance bottlenecks.
 
 ### What I Learned
 
@@ -69,10 +45,10 @@ Throughout this project, I gained valuable experience in:
 
 - Database design and schema creation.
 - ETL process implementation for data transformation and loading.
-- Establishing secure database connections and access controls.
-- Querying databases for real-time business metrics.
+- Knowledge expansion both in Python(`boto3`,`tabula`) and SQL.
+- Querying database using regular expression for   business metrics.
 
-## Usage
+
 ### Database design
 The ERD follow a star-based schema as shown below:
 
@@ -112,5 +88,8 @@ The ERD follow a star-based schema as shown below:
 ```
   
 
-## Installation
+## License
+This Multinational retail Database Centralisation project is released under the MIT License, which details the terms and conditions for using, modifying, and distributing the project.
+
+
 
